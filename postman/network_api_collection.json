@@ -1,0 +1,135 @@
+{
+  "info": {
+    "name": "Network Device Monitor API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "http://127.0.0.1:8000/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200 OK', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Health returns ok status', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.status).to.eql('ok');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List All Devices (JSON)",
+      "request": {
+        "method": "GET",
+        "url": "http://127.0.0.1:8000/devices?status=All&format=json"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200 OK', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Returns device list with count', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.count).to.be.above(0);",
+              "  pm.expect(json.devices).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List Devices (XML)",
+      "request": {
+        "method": "GET",
+        "url": "http://127.0.0.1:8000/devices?format=xml"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200 OK', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Returns XML devices root', function () {",
+              "  pm.expect(pm.response.text()).to.include('<devices>');",
+              "  pm.expect(pm.response.text()).to.include('</devices>');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Non-Existent Device Returns 404",
+      "request": {
+        "method": "GET",
+        "url": "http://127.0.0.1:8000/devices/dev-does-not-exist"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 404 Not Found', function () {",
+              "  pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Device Status to Online",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"status\": \"Online\"}"
+        },
+        "url": "http://127.0.0.1:8000/devices/dev-3/status"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200 OK', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Device status updated to Online', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.status).to.eql('Online');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
